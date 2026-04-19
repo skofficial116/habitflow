@@ -1,18 +1,27 @@
-import mongoose, { mongo } from "mongoose";
+import mongoose from "mongoose";
+
+const MONGO_URL = process.env.MONGO_URL!;
+
+if (!MONGO_URL) {
+  throw new Error("Please define MONGO_URL");
+}
+
+let cached = (global as any).mongoose || { conn: null, promise: null };
 
 export async function connect() {
-    try {
-        mongoose.connect(process.env.MONGO_URL!)
-        const connection = mongoose.connection
+  if (cached.conn) {
+    return cached.conn;
+  }
 
-        connection.on("connected", () => {
-            console.log("Mongodb connected successfully")
-        })
-        connection.on('error', (err) => {
-            console.log("MongoDB connection Error: " + err)
-            process.exit()
-        })
-    } catch (error) {
-        console.log(error)
-    }
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGO_URL).then((mongoose) => {
+      console.log("MongoDB connected");
+      return mongoose;
+    });
+  }
+
+  cached.conn = await cached.promise;
+  (global as any).mongoose = cached;
+
+  return cached.conn;
 }
