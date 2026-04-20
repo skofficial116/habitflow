@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
     const router = useRouter()
-    const [data, setData] = useState({ _id: "", username: "", email: "", isVerified: Boolean, isAdmin: Boolean, createdAt: "", updatedAt: "" })
+    const [data, setData] = useState("nothing")
     const logout = async () => {
         try {
             const response = await axios.get("/api/users/logout")
@@ -36,10 +36,11 @@ export default function ProfilePage() {
             <hr />
             <p>This is a profile page</p>
 
-            <h2>{data._id ? data.username : "User not found"}</h2>
+            <h2 className="p-3 rounded bg-green-300 text-black">{data === 'nothing' ? "Nothing" : <Link href={`/profile/${data}`}>{data}</Link>}</h2>
 
             {/* <button className="btn btn-danger ">Logout</button> */}
             <button className="btn btn-danger bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={logout}>Logout</button>
+            <button className="btn btn-danger bg-green-800 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={getUserDetails}>Get Data</button>
         </div>
     )
 }
